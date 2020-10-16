@@ -31,7 +31,6 @@ async def homework(ctx: discord.ext.commands.context.Context):
     print(type(ctx))
     await ctx.send("working")
 
-
 @bot.command()
 async def setHomework(ctx: discord.ext.commands.context.Context, lessonName: str, *work: str):
     print(work)
