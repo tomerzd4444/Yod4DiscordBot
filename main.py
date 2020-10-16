@@ -14,6 +14,7 @@ print(token)
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="the zoom lesson"))
+    print("bruh")
 
 def printDict(d: dict):
     toReturn = ""
@@ -41,7 +42,6 @@ async def setHomework(ctx: discord.ext.commands.context.Context, lessonName: str
 
     await ctx.send(f"set the homework of the lesson {lessonName}!")
     # await ctx.send(printDict(homeworkDict))
-
 
 @bot.command()
 async def getHomework(ctx: discord.ext.commands.context.Context):
