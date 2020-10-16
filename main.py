@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord.utils import get
 from dotenv import load_dotenv
 
-bot = commands.Bot(command_prefix="please", self_bot=True)
+bot = commands.Bot(command_prefix="please ", self_bot=True)
 load_dotenv(dotenv_path="token.env")
 token = os.getenv('token')
 homeworkDict = {}
