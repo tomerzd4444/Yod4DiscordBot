@@ -36,6 +36,10 @@ def addWork(subject: str, work: str):
     homeworkDict[subject].append(work)
 
 @bot.command()
+async def getSubjects(ctx: discord.ext.commands.contect.Context):
+    await ctx.send(f'subjects: {subjects'})
+    
+@bot.command()
 async def homework(ctx: discord.ext.commands.context.Context):
     print(type(ctx))
     await ctx.send("working")
