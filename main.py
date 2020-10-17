@@ -1,14 +1,23 @@
 import os
 import discord
+import mysql.connector
 from discord.ext import commands
 from discord.utils import get
 from dotenv import load_dotenv
+from datetime import datetime
 
 bot = commands.Bot(command_prefix="please ")
 load_dotenv(dotenv_path="token.env")
 token = os.getenv('token')
 homeworkDict = {}
+subjects = ["Math", "English", "Hebrew", "Biology", "Cinema", "Arabic", "Tanah", "History", "Literature", "SocialStudies", "Yigal", "Sport", "CS", "Physics", "Chemistry"]
 print(token)
+mydb = mysql.connector.connect(
+    host="192.168.1.137",
+    user="yodadmin",
+    password="yoddbadmin",
+    database="yod4"
+)
 
 @bot.event
 async def on_ready():
@@ -21,10 +30,10 @@ def printDict(d: dict):
         toReturn += f"{key}: {', '.join(value)} \n"
     return toReturn
 
-def addWork(lessonName: str, work: str):
-    if not homeworkDict.get(lessonName):
-        homeworkDict[lessonName] = []
-    homeworkDict[lessonName].append(work)
+def addWork(subject: str, work: str):
+    if not homeworkDict.get(subject):
+        homeworkDict[subject] = []
+    homeworkDict[subject].append(work)
 
 @bot.command()
 async def homework(ctx: discord.ext.commands.context.Context):
@@ -32,18 +41,35 @@ async def homework(ctx: discord.ext.commands.context.Context):
     await ctx.send("working")
 
 @bot.command()
-async def setHomework(ctx: discord.ext.commands.context.Context, lessonName: str, *work: str):
-    print(work)
-    work = ' '.join(work)
-    print(work)
-    addWork(lessonName, work)
-
-    await ctx.send(f"set the homework of the lesson {lessonName}!")
-    # await ctx.send(printDict(homeworkDict))
+async def setHomework(ctx: discord.ext.commands.context.Context, date:str, subject: str, *work: str):
+    parsedTime = datetime.strptime(date, "%d-%m-%Y")
+    workString = ' '.join(work)
+    if subject.lower() not in map(str.lower, subjects): #Checking if the subject exists.
+        await ctx.send(f"There is no such subject.")
+        return
+    mycursor = mydb.cursor()
+    query = "INSERT INTO homework (work, subject, date) VALUES (%s, %s, %s)"
+    val = (workString, subject, parsedTime)
+    mycursor.execute(query, val) #Adding the new assignment, it automatically gets indexed by subject and date and by date alone
+    mydb.commit()
+    await ctx.send(f"Set the homework of the lesson {subject.lower()}!")
 
 
 @bot.command()
 async def getHomework(ctx: discord.ext.commands.context.Context):
-    await ctx.send(printDict(homeworkDict))
+    for s in subjects:
+        embed = discord.Embed(color=0x1f49ab, title=s)
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT work, date FROM homework WHERE subject = \'"+s+"\' ORDER BY date ASC")
+        myresult = mycursor.fetchall()
+        if(mycursor.rowcount > 0):
+            embedWork = "" #The date and work for each result, we add them together so the embed string looks good and side by side
+            embedDate = ""
+            for x in myresult: #Adding embed dates and embed works for all results
+                embedWork += x[0] + "\n"
+                embedDate += x[1].strftime("%d-%m-%Y") + "\n" #parsing datetime to string
+            embed.add_field(name="Work:", value=embedWork, inline=True)
+            embed.add_field(name="Date:", value=embedDate, inline=True)
+            await ctx.send(embed=embed)
 
 bot.run(token)
