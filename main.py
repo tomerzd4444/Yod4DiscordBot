@@ -1,11 +1,10 @@
 import os
 import discord
 import mysql.connector
-from discord.ext import commands
-from discord.utils import get
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from datetime import datetime
-import time
+import asyncio
 import threading
 
 bot = commands.Bot(command_prefix=";")
@@ -19,19 +18,17 @@ mydb = mysql.connector.connect(
     password="yoddbadmin",
     database="yod4"
 )
+@tasks.loop(hours=4)
+async def autoDelete():
+    mycursor = mydb.cursor()
+    mycursor.execute("DELETE FROM homework WHERE date < DATE(\'" + datetime.now().strftime("%Y-%m-%d") + "\')")
+    mydb.commit()
 
-def autoDelete():
-    while True:
-        mycursor = mydb.cursor()
-        mycursor.execute("DELETE FROM homework WHERE date < DATE(\'" + datetime.now().strftime("%Y-%m-%d") + "\')")
-        mydb.commit()
-        time.sleep(3600)
-delThread = threading.Thread(target=autoDelete())
-delThread.start()
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="the zoom lesson"))
+    autoDelete.start()
 
 @bot.command()
 async def subjects(ctx: discord.ext.commands.context.Context):
