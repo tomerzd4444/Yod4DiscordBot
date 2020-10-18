@@ -25,6 +25,10 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="the zoom lesson"))
 
 @bot.command()
+async def getSubjects(ctx: discord.ext.commands.contect.Context):
+    await ctx.send(f'subjects: {subjects'})
+    
+@bot.command()
 async def homework(ctx: discord.ext.commands.context.Context):
     print(type(ctx))
     await ctx.send("working")
