@@ -4,8 +4,7 @@ import mysql.connector
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from datetime import datetime
-import asyncio
-import threading
+
 
 bot = commands.Bot(command_prefix=";")
 load_dotenv(dotenv_path="token.env")
